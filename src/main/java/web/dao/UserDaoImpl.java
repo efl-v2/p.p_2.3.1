@@ -1,16 +1,14 @@
 package web.dao;
 
-import org.springframework.stereotype.Component;
+
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import web.model.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
-@Transactional
-@Component
 @Repository
 public class UserDaoImpl implements UserDao {
 
@@ -28,18 +26,31 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void removeUserById(Integer userId) {
+    public void removeUserById(Integer userId) throws EntityNotFoundException {
+        User user = getUserById(userId);
+        if (user != null) {
+            em.remove(user);
+        } else {
+            throw new EntityNotFoundException("User: " + userId + " not found.");
+        }
+    }
+
+    @Override
+    public User getUserById(Integer userId) throws EntityNotFoundException {
         User user = em.find(User.class, userId);
-        em.remove(user);
+        if (user == null) {
+            throw new EntityNotFoundException("User: " + userId + " not found.");
+        }
+        return user;
     }
 
     @Override
-    public User getUserById(Integer userId) {
-        return em.find(User.class, userId);
-    }
-
-    @Override
-    public void updateUser(User user) {
-        em.merge(user);
+    public void updateUser(User user) throws EntityNotFoundException {
+        User existingUser = getUserById(user.getId());
+        if (existingUser != null) {
+            em.merge(user);
+        } else {
+            throw new EntityNotFoundException("User: " + user.getId() + " not found.");
+        }
     }
 }
