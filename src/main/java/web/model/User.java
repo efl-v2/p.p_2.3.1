@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(schema = "users")
@@ -16,9 +18,13 @@ public class User {
     private int id;
 
     @Column
+    @Size(min = 2, max = 40, message = "Invalid name")
+    @NotBlank
     private String name;
 
     @Column
+    @Size(min = 6, max = 40, message = "Invalid password")
+    @NotBlank
     private String password;
 
     public User(int id, String name, String password) {
